@@ -1,0 +1,9 @@
+logs/*
+attack_lookup_table.txt
+command.txt
+form_xss.txt
+graph_mathematica.txt
+queue.txt
+run.flag
+successful_injections-*.txt
+successful_xss.txt
