@@ -480,6 +480,12 @@ class Crawler:
         self.done_form = {}
         self.max_done_form = 5
 
+        # pause on first load
+        self.first_load = True
+
+        # avoid going out of scope
+        self.origin = urlparse(url).netloc
+
         logging.info("Init crawl on " + url)
 
     def start(self, debug_mode=False):
@@ -1323,9 +1329,17 @@ class Crawler:
 
     def load_page(self, driver, graph):
         request = None
-        edge = self.next_unvisited_edge(driver, graph)
-        if not edge:
-            return None
+        edge = None
+        while True:
+            edge = self.next_unvisited_edge(driver, graph)
+            if not edge:
+                return None
+            break # TODO fix, breaks on crawlmaze
+            # current_origin = urlparse(edge.n2.value.url).netloc
+            # if current_origin == self.origin:
+            #     break
+            # else:
+            #   print(f"Crawling out of scope. Skipping this edge: {self.origin} {current_origin}")
 
         # Update last visited edge
         graph.data['prev_edge'] = edge
@@ -1344,6 +1358,11 @@ class Crawler:
         graph = self.graph
 
         todo = self.load_page(driver, graph)
+        # if self.first_load:
+        #     input("PAUSED! login etc")
+        #     self.first_load = False
+        #     # for some reason JS and such is broken now?
+
         if not todo:
             print("Done crawling")
             print(graph)
